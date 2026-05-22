@@ -1,0 +1,2064 @@
+﻿<Window x:Class="DPU.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         Title="1553 Bus Controller Test System"
+        Height="820"
+        Width="1200" WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFE8EDF2">
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="160"/>
+            <RowDefinition Height="28"/>
+        </Grid.RowDefinitions>
+
+        <!--═══════════════════════════════════════════════════-->
+        <!-- ROW 0 : Title Bar                                -->
+        <!--═══════════════════════════════════════════════════-->
+        <Grid Grid.Row="0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FF002D59" Offset="0.0"/>
+                    <GradientStop Color="#FF4A87C1" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <TextBlock Text="MIL-STD-1553 Bus Controller Test System"
+                       FontSize="20"
+                       FontFamily="Lucida Fax"
+                       FontWeight="UltraBold"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Grid>
+
+        <!--═══════════════════════════════════════════════════-->
+        <!-- ROW 1 : Status LED Bar                           -->
+        <!--═══════════════════════════════════════════════════-->
+        <Grid Grid.Row="1" Background="#FFD0D8E4">
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="10,0">
+                <TextBlock Text="1553 Bus Status :"
+                           FontFamily="Lucida Fax"
+                           FontWeight="Bold"
+                           FontSize="13"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                <Ellipse x:Name="ledEllipse"
+                         Width="16" Height="16"
+                         Fill="Gray"
+                         Stroke="Black"
+                         StrokeThickness="1"
+                         VerticalAlignment="Center"
+                         Margin="0,0,6,0"/>
+                <TextBlock x:Name="ledStatusText"
+                           Text="Not Connected"
+                           FontFamily="Lucida Fax"
+                           FontSize="12"
+                           Foreground="DimGray"
+                           VerticalAlignment="Center"
+                           Margin="0,0,20,0"/>
+                <Border x:Name="modeBadge"
+                        Background="Gray"
+                        CornerRadius="4"
+                        Padding="8,2"
+                        VerticalAlignment="Center">
+                    <TextBlock x:Name="modeText"
+                               Text="IDLE"
+                               FontFamily="Lucida Fax"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="White"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!--═══════════════════════════════════════════════════-->
+        <!-- ROW 2 : Tab Control                              -->
+        <!--═══════════════════════════════════════════════════-->
+        <TabControl Grid.Row="2"
+                    x:Name="mainTabControl"
+                    Margin="4"
+                    FontFamily="Lucida Fax"
+                    FontSize="13"
+                    FontWeight="Bold"
+                    Background="#FFE8EDF2"
+                    BorderBrush="Navy">
+
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="tabBorder"
+                                        Background="#FF002D59"
+                                        CornerRadius="6,6,0,0"
+                                        Padding="16,6"
+                                        Margin="2,0,2,0">
+                                    <ContentPresenter
+                                        ContentSource="Header"
+                                        TextBlock.Foreground="White"
+                                        TextBlock.FontWeight="Bold"
+                                        TextBlock.FontFamily="Lucida Fax"
+                                        TextBlock.FontSize="13"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="tabBorder"
+                                                Property="Background"
+                                                Value="#FF4A87C1"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="tabBorder"
+                                                Property="Background"
+                                                Value="#FF3A6EA0"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+            <!--═══════════════════════════════════════-->
+            <!-- TAB 1 : BC to RT                     -->
+            <!--═══════════════════════════════════════-->
+            <TabItem Header="BC → RT  (Send to Remote Terminal)">
+                <Grid Background="Transparent" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ════════════════════════════════════════════════ -->
+                    <!--  LEFT COLUMN  –  All Three Builders             -->
+                    <!-- ════════════════════════════════════════════════ -->
+                    <ScrollViewer Grid.Column="0"
+                      VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+
+                            <!-- ══════════════════════════════════════ -->
+                            <!--  COMMON SETTINGS                      -->
+                            <!-- ══════════════════════════════════════ -->
+                            <GroupBox Header="Common Settings"
+                          BorderBrush="Navy"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="6">
+
+                                    <StackPanel Orientation="Horizontal" Margin="4">
+                                        <Label Content="1553 Bus :"
+                                   Width="160"
+                                   VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="bc_busSelectionComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}">
+                                            <ComboBoxItem IsSelected="True">A</ComboBoxItem>
+                                            <ComboBoxItem>B</ComboBoxItem>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Margin="4">
+                                        <Label Content="Device ID :"
+                                   Width="160"
+                                   VerticalAlignment="Center"/>
+                                        <TextBox x:Name="bc_deviceIdNumber"
+                                     Width="70" Height="25"
+                                     FontSize="13"
+                                     VerticalAlignment="Center"
+                                     Style="{StaticResource WhiteTextBox}"
+                                     Text="0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Margin="4">
+                                        <Label Content="RT Address :"
+                                   Width="160"
+                                   VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="bc_rtAddressComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_rtAddressComboBox_SelectionChanged">
+                                            <ComboBoxItem IsSelected="True" Content="1"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="3"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="5"/>
+                                            <ComboBoxItem Content="6"/>
+                                            <ComboBoxItem Content="7"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="9"/>
+                                            <ComboBoxItem Content="10"/>
+                                            <ComboBoxItem Content="11"/>
+                                            <ComboBoxItem Content="12"/>
+                                            <ComboBoxItem Content="13"/>
+                                            <ComboBoxItem Content="14"/>
+                                            <ComboBoxItem Content="15"/>
+                                            <ComboBoxItem Content="16"/>
+                                            <ComboBoxItem Content="17"/>
+                                            <ComboBoxItem Content="18"/>
+                                            <ComboBoxItem Content="19"/>
+                                            <ComboBoxItem Content="20"/>
+                                            <ComboBoxItem Content="21"/>
+                                            <ComboBoxItem Content="22"/>
+                                            <ComboBoxItem Content="23"/>
+                                            <ComboBoxItem Content="24"/>
+                                            <ComboBoxItem Content="25"/>
+                                            <ComboBoxItem Content="26"/>
+                                            <ComboBoxItem Content="27"/>
+                                            <ComboBoxItem Content="28"/>
+                                            <ComboBoxItem Content="29"/>
+                                            <ComboBoxItem Content="30"/>
+                                            <ComboBoxItem Content="31"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- ══════════════════════════════════════ -->
+                            <!--  BUILDER 1 : 32-BIT (Gain + BW)      -->
+                            <!-- ══════════════════════════════════════ -->
+                            <GroupBox Header="① 32-bit Word  ▸  Gain TC (24-bit) + Bandwidth (8-bit)"
+                          BorderBrush="#FF003D99"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="8">
+
+                                    <!-- Info -->
+                                    <Border Background="#FFEFF6FF"
+                                BorderBrush="#FF4A87C1"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="6,4"
+                                Margin="0,0,0,8">
+                                        <TextBlock FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="#FF002D59"
+                                       TextWrapping="Wrap">
+                                <Bold>32-bit Layout:</Bold>
+                                Bits[31:8] = Gain TC (24-bit)  |  Bits[7:0] = Bandwidth (8-bit)&#x0a;
+                                Sent as 2 × 16-bit words:  Word1 = High 16-bit  |  Word2 = Low 16-bit
+                                        </TextBlock>
+                                    </Border>
+
+                                    <!-- Sub Address -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Sub Address :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_subAddressComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_subAddressComboBox_SelectionChanged">
+                                            <ComboBoxItem IsSelected="True" Content="1"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="3"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="5"/>
+                                            <ComboBoxItem Content="6"/>
+                                            <ComboBoxItem Content="7"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="9"/>
+                                            <ComboBoxItem Content="10"/>
+                                            <ComboBoxItem Content="11"/>
+                                            <ComboBoxItem Content="12"/>
+                                            <ComboBoxItem Content="13"/>
+                                            <ComboBoxItem Content="14"/>
+                                            <ComboBoxItem Content="15"/>
+                                            <ComboBoxItem Content="16"/>
+                                            <ComboBoxItem Content="17"/>
+                                            <ComboBoxItem Content="18"/>
+                                            <ComboBoxItem Content="19"/>
+                                            <ComboBoxItem Content="20"/>
+                                            <ComboBoxItem Content="21"/>
+                                            <ComboBoxItem Content="22"/>
+                                            <ComboBoxItem Content="23"/>
+                                            <ComboBoxItem Content="24"/>
+                                            <ComboBoxItem Content="25"/>
+                                            <ComboBoxItem Content="26"/>
+                                            <ComboBoxItem Content="27"/>
+                                            <ComboBoxItem Content="28"/>
+                                            <ComboBoxItem Content="29"/>
+                                            <ComboBoxItem Content="30"/>
+                                            <ComboBoxItem Content="31"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Gain ComboBox – shows only dBm value -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Gain (dBm) :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_gainComboBox"
+                                      Width="120"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_gainComboBox_SelectionChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Bandwidth ComboBox – shows only KHz -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Bandwidth :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_bandwidthComboBox"
+                                      Width="120"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_bandwidthComboBox_SelectionChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Word Count -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Word Count :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_wordCountComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_wordCountComboBox_SelectionChanged">
+                                            <ComboBoxItem Content="2" IsSelected="True"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="16"/>
+                                            <ComboBoxItem Content="32"/>
+                                        </ComboBox>
+                                        <TextBlock Text=" 16-bit words"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="Gray"
+                                       VerticalAlignment="Center"
+                                       Margin="6,0"/>
+                                    </StackPanel>
+
+                                    <!-- TX Message Box -->
+                                    <Label Content="TX Message (32-bit Hex Words) :"
+                               FontWeight="Bold"
+                               Margin="0,6,0,0"/>
+                                    <TextBox x:Name="bc_txMessageTextBox"
+                                 FontSize="12"
+                                 Height="46"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalScrollBarVisibility="Auto"
+                                 Style="{StaticResource WhiteTextBox}"
+                                 FontFamily="Courier New"/>
+
+                                    <!-- Hidden labels needed by code-behind -->
+                                    <TextBlock x:Name="bc_gainBitsLabel"   Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_bwBitsLabel"     Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_32bitHexPreview" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_word1HexLabel"   Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_word2HexLabel"   Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_gainHexLabel"    Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_bwHexLabel"      Visibility="Collapsed"/>
+
+                                    <!-- Send + Clear Buttons -->
+                                    <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,8">
+                                        <Button Content="▶ Send 32-bit"
+                                    Width="140" Height="36"
+                                    FontSize="13" Margin="4"
+                                    Style="{StaticResource RoundedButton}"
+                                    Click="BC_Send32Bit_Click"/>
+                                        <Button Content="Clear All"
+                                    Width="100" Height="36"
+                                    FontSize="13" Margin="4"
+                                    Style="{StaticResource RoundedButton}"
+                                    Click="BC_Clear_Click"/>
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- ══════════════════════════════════════ -->
+                            <!--  BUILDER 2 : 8-BIT (Power Limit)     -->
+                            <!-- ══════════════════════════════════════ -->
+                            <GroupBox Header="② 8-bit Word  ▸  Power Limit"
+                          BorderBrush="#FF8B0000"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="8">
+
+                                    <!-- Info -->
+                                    <Border Background="#FFFFF0F0"
+                                BorderBrush="#FFDDAABB"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="6,4"
+                                Margin="0,0,0,8">
+                                        <TextBlock FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="#FF8B0000"
+                                       TextWrapping="Wrap">
+                                <Bold>8-bit Layout:</Bold>
+                                Bits[7:0] = Power Limit register value&#x0a;
+                                Sent as 1 × 16-bit word (padded):  0x00XX
+                                        </TextBlock>
+                                    </Border>
+
+                                    <!-- Sub Address -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Sub Address :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_pwrSubAddressComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}">
+                                            <ComboBoxItem IsSelected="True" Content="1"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="3"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="5"/>
+                                            <ComboBoxItem Content="6"/>
+                                            <ComboBoxItem Content="7"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="9"/>
+                                            <ComboBoxItem Content="10"/>
+                                            <ComboBoxItem Content="11"/>
+                                            <ComboBoxItem Content="12"/>
+                                            <ComboBoxItem Content="13"/>
+                                            <ComboBoxItem Content="14"/>
+                                            <ComboBoxItem Content="15"/>
+                                            <ComboBoxItem Content="16"/>
+                                            <ComboBoxItem Content="17"/>
+                                            <ComboBoxItem Content="18"/>
+                                            <ComboBoxItem Content="19"/>
+                                            <ComboBoxItem Content="20"/>
+                                            <ComboBoxItem Content="21"/>
+                                            <ComboBoxItem Content="22"/>
+                                            <ComboBoxItem Content="23"/>
+                                            <ComboBoxItem Content="24"/>
+                                            <ComboBoxItem Content="25"/>
+                                            <ComboBoxItem Content="26"/>
+                                            <ComboBoxItem Content="27"/>
+                                            <ComboBoxItem Content="28"/>
+                                            <ComboBoxItem Content="29"/>
+                                            <ComboBoxItem Content="30"/>
+                                            <ComboBoxItem Content="31"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Power Limit ComboBox – shows only dBm number -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Power Limit (dBm) :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_powerLimitComboBox"
+                                      Width="100"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_powerLimitComboBox_SelectionChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Word Count -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Word Count :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_pwrWordCountComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_pwrWordCountComboBox_SelectionChanged">
+                                            <ComboBoxItem Content="1" IsSelected="True"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="8"/>
+                                        </ComboBox>
+                                        <TextBlock Text=" 16-bit words"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="Gray"
+                                       VerticalAlignment="Center"
+                                       Margin="6,0"/>
+                                    </StackPanel>
+
+                                    <!-- Hidden labels needed by code-behind -->
+                                    <TextBlock x:Name="bc_pwrBitsLabel"    Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_pwrWordHexLabel" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="bc_pwrByteHexLabel" Visibility="Collapsed"/>
+
+                                    <!-- TX Message Box -->
+                                    <Label Content="TX Message (Power Limit Hex Word) :"
+                               FontWeight="Bold"
+                               Margin="0,6,0,0"/>
+                                    <TextBox x:Name="bc_pwrTxMessageTextBox"
+                                 FontSize="12"
+                                 Height="34"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="False"
+                                 HorizontalAlignment="Stretch"
+                                 Style="{StaticResource WhiteTextBox}"
+                                 FontFamily="Courier New"/>
+
+                                    <!-- Send Button -->
+                                    <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,8">
+                                        <Button Content="▶ Send 8-bit Power Limit"
+                                    Width="200" Height="36"
+                                    FontSize="13" Margin="4"
+                                    Style="{StaticResource RoundedButton}"
+                                    Click="BC_Send8BitPower_Click"/>
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- ══════════════════════════════════════════ -->
+                            <!--  BUILDER 3 : 24-BIT Gain TC Sequential    -->
+                            <!-- ══════════════════════════════════════════ -->
+                            <GroupBox Header="③ 24-bit Word  ▸  Gain TC Sequential Send"
+                          BorderBrush="#FF6A0DAD"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="8">
+
+                                    <!-- Info -->
+                                    <Border Background="#FFF8F0FF"
+                                BorderBrush="#FFCC99FF"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="6,4"
+                                Margin="0,0,0,8">
+                                        <TextBlock FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="#FF4B0082"
+                                       TextWrapping="Wrap">
+                                <Bold>24-bit Sequential Send:</Bold>
+                                Select a gain mode then click 'Send Sequential'.&#x0a;
+                                Each TC value is sent as 2 × 16-bit words automatically.
+                                        </TextBlock>
+                                    </Border>
+
+                                    <!-- Sub Address -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Sub Address :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_gainTcSubAddressComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}">
+                                            <ComboBoxItem IsSelected="True" Content="1"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="3"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="5"/>
+                                            <ComboBoxItem Content="6"/>
+                                            <ComboBoxItem Content="7"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="9"/>
+                                            <ComboBoxItem Content="10"/>
+                                            <ComboBoxItem Content="11"/>
+                                            <ComboBoxItem Content="12"/>
+                                            <ComboBoxItem Content="13"/>
+                                            <ComboBoxItem Content="14"/>
+                                            <ComboBoxItem Content="15"/>
+                                            <ComboBoxItem Content="16"/>
+                                            <ComboBoxItem Content="17"/>
+                                            <ComboBoxItem Content="18"/>
+                                            <ComboBoxItem Content="19"/>
+                                            <ComboBoxItem Content="20"/>
+                                            <ComboBoxItem Content="21"/>
+                                            <ComboBoxItem Content="22"/>
+                                            <ComboBoxItem Content="23"/>
+                                            <ComboBoxItem Content="24"/>
+                                            <ComboBoxItem Content="25"/>
+                                            <ComboBoxItem Content="26"/>
+                                            <ComboBoxItem Content="27"/>
+                                            <ComboBoxItem Content="28"/>
+                                            <ComboBoxItem Content="29"/>
+                                            <ComboBoxItem Content="30"/>
+                                            <ComboBoxItem Content="31"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Gain Mode -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Gain Mode :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_gainTcModeComboBox"
+                                      Width="240"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_gainTcModeComboBox_SelectionChanged">
+                                            <ComboBoxItem Content="-55  →  0 to +45 dBm  (46 steps)"
+                                              Tag="-55"/>
+                                            <ComboBoxItem Content="-26  →  -22 to +22 dBm  (45 steps)"
+                                              Tag="-26"/>
+                                            <ComboBoxItem Content="-10  →  -45 to 0 dBm  (46 steps)"
+                                              Tag="-10"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Word Count -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Word Count :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_gainTcWordCountComboBox"
+                                      Width="70"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      SelectionChanged="bc_gainTcWordCountComboBox_SelectionChanged">
+                                            <ComboBoxItem Content="2" IsSelected="True"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="8"/>
+                                        </ComboBox>
+                                        <TextBlock Text=" words per message"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="Gray"
+                                       VerticalAlignment="Center"
+                                       Margin="6,0"/>
+                                    </StackPanel>
+
+                                    <!-- Delay -->
+                                    <StackPanel Orientation="Horizontal" Margin="4,3">
+                                        <Label Content="Delay (ms) :"
+                                   Width="160"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="bc_gainTcDelayComboBox"
+                                      Width="100"
+                                      Style="{StaticResource RoundedComboBox}">
+                                            <ComboBoxItem Content="100"/>
+                                            <ComboBoxItem Content="200"/>
+                                            <ComboBoxItem Content="500" IsSelected="True"/>
+                                            <ComboBoxItem Content="1000"/>
+                                            <ComboBoxItem Content="2000"/>
+                                        </ComboBox>
+                                        <TextBlock Text=" between sends"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="Gray"
+                                       VerticalAlignment="Center"
+                                       Margin="6,0"/>
+                                    </StackPanel>
+
+                                    <!-- Progress -->
+                                    <Border Background="#FF180028"
+                                CornerRadius="4"
+                                Padding="8,6"
+                                Margin="0,8,0,4">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal"
+                                            Margin="0,0,0,6">
+                                                <TextBlock Text="Progress : "
+                                               FontFamily="Courier New"
+                                               FontSize="11"
+                                               Foreground="#FF888888"
+                                               VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="bc_gainTcCurrentStepLabel"
+                                               Text="0"
+                                               FontFamily="Courier New"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="#FFDDAAFF"
+                                               VerticalAlignment="Center"/>
+                                                <TextBlock Text="  /  "
+                                               FontFamily="Courier New"
+                                               FontSize="11"
+                                               Foreground="#FF888888"
+                                               VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="bc_gainTcTotalStepsLabel"
+                                               Text="0"
+                                               FontFamily="Courier New"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                                <TextBlock Text="  steps"
+                                               FontFamily="Courier New"
+                                               FontSize="11"
+                                               Foreground="#FF888888"
+                                               VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <ProgressBar x:Name="bc_gainTcProgressBar"
+                                             Height="14"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Value="0"
+                                             Foreground="#FF9944FF"
+                                             Background="#FF2D005A"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Current TX Word -->
+                                    <Label Content="Current TX Word :"
+                               FontWeight="Bold"
+                               Margin="0,4,0,0"/>
+                                    <TextBox x:Name="bc_gainTcTxMessageTextBox"
+                                 FontSize="12"
+                                 Height="34"
+                                 IsReadOnly="True"
+                                 HorizontalAlignment="Stretch"
+                                 Style="{StaticResource WhiteTextBox}"
+                                 FontFamily="Courier New"/>
+
+                                    <!-- Hidden ListBox needed by code-behind -->
+                                    <ListBox x:Name="bc_gainTcSequenceListBox"
+                                 Visibility="Collapsed"/>
+
+                                    <!-- Send / Stop Buttons -->
+                                    <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,10">
+                                        <Button x:Name="bc_gainTcSendButton"
+                                    Content="▶ Send Sequential"
+                                    Width="180" Height="38"
+                                    FontSize="13" Margin="4"
+                                    Style="{StaticResource RoundedButton}"
+                                    Click="BC_SendGainTcSequential_Click"/>
+                                        <Button x:Name="bc_gainTcStopButton"
+                                    Content="⏹ Stop"
+                                    Width="100" Height="38"
+                                    FontSize="13" Margin="4"
+                                    IsEnabled="False"
+                                    Style="{StaticResource RoundedButton}"
+                                    Click="BC_StopGainTcSequential_Click"/>
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ════════════════════════════════════════════════ -->
+                    <!--  RIGHT COLUMN  –  All Three Responses           -->
+                    <!-- ════════════════════════════════════════════════ -->
+                    <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+
+                            <!-- RESPONSE 1 -->
+                            <GroupBox Header="① Response  ▸  32-bit (Gain + Bandwidth)"
+                          BorderBrush="#FF003D99"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="6">
+
+                                    <Label Content="BC Rx Message (32-bit) :"
+                               FontWeight="Bold"/>
+                                    <TextBox x:Name="bc_responseTextBox"
+                                 FontSize="12"
+                                 Height="110"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 IsReadOnly="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalAlignment="Stretch"
+                                 Style="{StaticResource WhiteTextBox}"
+                                 FontFamily="Courier New"
+                                 Margin="4"/>
+
+                                    <GroupBox Header="Sent Details"
+                                  Margin="4,4,4,2"
+                                  BorderBrush="#FF003D99"
+                                  BorderThickness="1"
+                                  FontFamily="Lucida Fax"
+                                  FontSize="11">
+                                        <Grid Margin="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Gain :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainValue"
+                                           Grid.Row="0" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Bandwidth :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbBandwidth"
+                                           Grid.Row="1" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="32-bit Word :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbWord32"
+                                           Grid.Row="2" Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           FontFamily="Courier New" Text="-"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Sub Address :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbSubAddr"
+                                           Grid.Row="3" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Message Details"
+                                  Margin="4,4,4,4"
+                                  BorderBrush="#FF003D99"
+                                  BorderThickness="1"
+                                  FontFamily="Lucida Fax"
+                                  FontSize="11">
+                                        <Grid Margin="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Message ID :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbMsgId"
+                                           Grid.Row="0" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Time (us) :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbTime"
+                                           Grid.Row="1" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Bus :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbBus"
+                                           Grid.Row="2" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="TX Status :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbTxStatus"
+                                           Grid.Row="3" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Error :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbError"
+                                           Grid.Row="4" Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Foreground="Red" Text="-"/>
+                                        </Grid>
+                                    </GroupBox>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- RESPONSE 2 -->
+                            <GroupBox Header="② Response  ▸  8-bit (Power Limit)"
+                          BorderBrush="#FF8B0000"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="6">
+
+                                    <Label Content="BC Rx Message (8-bit Power) :"
+                               FontWeight="Bold"/>
+                                    <TextBox x:Name="bc_pwrResponseTextBox"
+                                 FontSize="12"
+                                 Height="90"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 IsReadOnly="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalAlignment="Stretch"
+                                 Style="{StaticResource WhiteTextBox}"
+                                 FontFamily="Courier New"
+                                 Margin="4"/>
+
+                                    <GroupBox Header="Power Sent Details"
+                                  Margin="4,4,4,2"
+                                  BorderBrush="#FF8B0000"
+                                  BorderThickness="1"
+                                  FontFamily="Lucida Fax"
+                                  FontSize="11">
+                                        <Grid Margin="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Power Limit :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPowerLimitValue"
+                                           Grid.Row="0" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Word (16-bit) :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPowerWord"
+                                           Grid.Row="1" Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           FontFamily="Courier New" Text="-"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Sub Address :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPwrSubAddr"
+                                           Grid.Row="2" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Message Details"
+                                  Margin="4,4,4,4"
+                                  BorderBrush="#FF8B0000"
+                                  BorderThickness="1"
+                                  FontFamily="Lucida Fax"
+                                  FontSize="11">
+                                        <Grid Margin="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Message ID :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPwrMsgId"
+                                           Grid.Row="0" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Time (us) :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPwrTime"
+                                           Grid.Row="1" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Bus :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPwrBus"
+                                           Grid.Row="2" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="TX Status :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPwrTxStatus"
+                                           Grid.Row="3" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Error :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbPwrError"
+                                           Grid.Row="4" Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Foreground="Red" Text="-"/>
+                                        </Grid>
+                                    </GroupBox>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- RESPONSE 3 -->
+                            <GroupBox Header="③ Response  ▸  24-bit Gain TC Sequential"
+                          BorderBrush="#FF6A0DAD"
+                          BorderThickness="2"
+                          Margin="3"
+                          FontFamily="Lucida Fax"
+                          FontSize="13"
+                          FontWeight="Bold"
+                          Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                                <StackPanel Margin="6">
+
+                                    <Label Content="Sequential Send Log :"
+                               FontWeight="Bold"/>
+                                    <TextBox x:Name="bc_gainTcResponseTextBox"
+                                 FontSize="11"
+                                 Height="200"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 IsReadOnly="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalAlignment="Stretch"
+                                 Style="{StaticResource WhiteTextBox}"
+                                 FontFamily="Courier New"
+                                 Margin="4"/>
+
+                                    <GroupBox Header="Sequence Details"
+                                  Margin="4,4,4,2"
+                                  BorderBrush="#FF6A0DAD"
+                                  BorderThickness="1"
+                                  FontFamily="Lucida Fax"
+                                  FontSize="11">
+                                        <Grid Margin="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Mode :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcMode"
+                                           Grid.Row="0" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Total Steps :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcTotalSteps"
+                                           Grid.Row="1" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Sent Steps :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcSentSteps"
+                                           Grid.Row="2" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Last dBm :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcLastDbm"
+                                           Grid.Row="3" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Last TC Value :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcValue"
+                                           Grid.Row="4" Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           FontFamily="Courier New" Text="-"/>
+
+                                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Sub Address :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcSubAddr"
+                                           Grid.Row="5" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Last Message Details"
+                                  Margin="4,4,4,4"
+                                  BorderBrush="#FF6A0DAD"
+                                  BorderThickness="1"
+                                  FontFamily="Lucida Fax"
+                                  FontSize="11">
+                                        <Grid Margin="4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                                <RowDefinition Height="22"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Message ID :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcMsgId"
+                                           Grid.Row="0" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Time (us) :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcTime"
+                                           Grid.Row="1" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Bus :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcBus"
+                                           Grid.Row="2" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="TX Status :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcTxStatus"
+                                           Grid.Row="3" Grid.Column="1"
+                                           VerticalAlignment="Center" Text="-"/>
+
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Error :"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="bc_tbGainTcError"
+                                           Grid.Row="4" Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Foreground="Red" Text="-"/>
+                                        </Grid>
+                                    </GroupBox>
+
+                                </StackPanel>
+                            </GroupBox>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                </Grid>
+            </TabItem>
+
+            <!--═══════════════════════════════════════-->
+            <!-- TAB 2 : RT to BC                     -->
+            <!--═══════════════════════════════════════-->
+            <TabItem Header="RT → BC  (Receive from Remote Terminal)">
+                <Grid Background="Transparent" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="309"/>
+                        <ColumnDefinition Width="52" />
+                        <ColumnDefinition Width="217" />
+                        <ColumnDefinition Width="578*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Header="Remote Terminal"
+                              BorderBrush="Navy"
+                              BorderThickness="2"
+                              Margin="3"
+                              FontFamily="Lucida Fax"
+                              FontSize="14"
+                              FontWeight="Bold"
+                              Style="{StaticResource RoundedGroupBoxWithWhiteHeader}" Grid.ColumnSpan="3">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="6">
+
+                                <StackPanel Orientation="Horizontal" Margin="4">
+                                    <Label Content="1553 Bus Selection :"
+                                           Width="210"
+                                           VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="rt_busSelectionComboBox"
+                                              Width="70"
+                                              Style="{StaticResource RoundedComboBox}">
+                                        <ComboBoxItem IsSelected="True">A</ComboBoxItem>
+                                        <ComboBoxItem>B</ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="4">
+                                    <Label Content="Device ID :"
+                                           Width="210"
+                                           VerticalAlignment="Center"/>
+                                    <TextBox x:Name="rt_deviceIdTextBox"
+                                             Width="70" Height="25"
+                                             FontSize="13"
+                                             VerticalAlignment="Center"
+                                             Style="{StaticResource WhiteTextBox}"
+                                             Text="0"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="4">
+                                    <Label Content="RT Address :"
+                                           Width="210"
+                                           VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="rt_rtAddressComboBox"
+                                              Width="70"
+                                              Style="{StaticResource RoundedComboBox}">
+                                        <ComboBoxItem IsSelected="True" Content="1"/>
+                                        <ComboBoxItem Content="2"/>
+                                        <ComboBoxItem Content="3"/>
+                                        <ComboBoxItem Content="4"/>
+                                        <ComboBoxItem Content="5"/>
+                                        <ComboBoxItem Content="6"/>
+                                        <ComboBoxItem Content="7"/>
+                                        <ComboBoxItem Content="8"/>
+                                        <ComboBoxItem Content="9"/>
+                                        <ComboBoxItem Content="10"/>
+                                        <ComboBoxItem Content="11"/>
+                                        <ComboBoxItem Content="12"/>
+                                        <ComboBoxItem Content="13"/>
+                                        <ComboBoxItem Content="14"/>
+                                        <ComboBoxItem Content="15"/>
+                                        <ComboBoxItem Content="16"/>
+                                        <ComboBoxItem Content="17"/>
+                                        <ComboBoxItem Content="18"/>
+                                        <ComboBoxItem Content="19"/>
+                                        <ComboBoxItem Content="20"/>
+                                        <ComboBoxItem Content="21"/>
+                                        <ComboBoxItem Content="22"/>
+                                        <ComboBoxItem Content="23"/>
+                                        <ComboBoxItem Content="24"/>
+                                        <ComboBoxItem Content="25"/>
+                                        <ComboBoxItem Content="26"/>
+                                        <ComboBoxItem Content="27"/>
+                                        <ComboBoxItem Content="28"/>
+                                        <ComboBoxItem Content="29"/>
+                                        <ComboBoxItem Content="30"/>
+                                        <ComboBoxItem Content="31"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <!-- Add this AFTER the RT Address StackPanel in RT→BC tab -->
+                                <StackPanel Orientation="Horizontal" Margin="4">
+                                    <Label Content="Sub Address :"
+           Width="210"
+           VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="rt_subAddressComboBox"
+              Width="70"
+              Style="{StaticResource RoundedComboBox}">
+                                        <ComboBoxItem IsSelected="True" Content="1"/>
+                                        <ComboBoxItem Content="2"/>
+                                        <ComboBoxItem Content="3"/>
+                                        <ComboBoxItem Content="4"/>
+                                        <ComboBoxItem Content="5"/>
+                                        <ComboBoxItem Content="6"/>
+                                        <ComboBoxItem Content="7"/>
+                                        <ComboBoxItem Content="8"/>
+                                        <ComboBoxItem Content="9"/>
+                                        <ComboBoxItem Content="10"/>
+                                        <ComboBoxItem Content="11"/>
+                                        <ComboBoxItem Content="12"/>
+                                        <ComboBoxItem Content="13"/>
+                                        <ComboBoxItem Content="14"/>
+                                        <ComboBoxItem Content="15"/>
+                                        <ComboBoxItem Content="16"/>
+                                        <ComboBoxItem Content="17"/>
+                                        <ComboBoxItem Content="18"/>
+                                        <ComboBoxItem Content="19"/>
+                                        <ComboBoxItem Content="20"/>
+                                        <ComboBoxItem Content="21"/>
+                                        <ComboBoxItem Content="22"/>
+                                        <ComboBoxItem Content="23"/>
+                                        <ComboBoxItem Content="24"/>
+                                        <ComboBoxItem Content="25"/>
+                                        <ComboBoxItem Content="26"/>
+                                        <ComboBoxItem Content="27"/>
+                                        <ComboBoxItem Content="28"/>
+                                        <ComboBoxItem Content="29"/>
+                                        <ComboBoxItem Content="30"/>
+                                        <ComboBoxItem Content="31"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <Border Background="#FFEFF6FF"
+                                        BorderBrush="#FF4A87C1"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Margin="4,8,4,4"
+                                        Padding="8">
+                                    <StackPanel>
+                                        <TextBlock Text="How This Works:"
+                                                   FontWeight="Bold"
+                                                   FontFamily="Lucida Fax"
+                                                   FontSize="12"
+                                                   Foreground="#FF002D59"
+                                                   Margin="0,0,0,4"/>
+                                        <TextBlock TextWrapping="Wrap"
+                                                   FontFamily="Lucida Fax"
+                                                   FontSize="11"
+                                                   Foreground="#FF333333">
+                                            The DDC card acts as BC and sends
+                                            an RTtoBC command to the selected
+                                            RT address. The RT device responds
+                                            with its data which is displayed here.
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button Content="Receive Data From RT"
+                                        Width="240" Height="40"
+                                        FontSize="14"
+                                        Margin="4,12,4,4"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource RoundedButton}"
+                                        Click="RT_ReceiveData_Click"/>
+
+                                <Button Content="Clear"
+                                        Width="100" Height="36"
+                                        FontSize="13"
+                                        Margin="4,4,4,4"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource RoundedButton}"
+                                        Click="RT_Clear_Click"/>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="3"
+                              Header="Data Received From RT"
+                              BorderBrush="Navy"
+                              BorderThickness="2"
+                              Margin="3"
+                              FontFamily="Lucida Fax"
+                              FontSize="14"
+                              FontWeight="Bold"
+                              Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                        <StackPanel Margin="6">
+                            <Label Content="RT 1553 TX Message (Received by BC) :"
+                                   HorizontalAlignment="Left"/>
+                            <TextBox x:Name="rt_outputTextBox"
+                                     FontSize="13"
+                                     Height="200"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     IsReadOnly="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalAlignment="Stretch"
+                                     Style="{StaticResource WhiteTextBox}"
+                                     Margin="4"/>
+
+                            <GroupBox Header="RT Message Details"
+                                      Margin="4,8,4,4"
+                                      BorderBrush="Navy"
+                                      BorderThickness="1"
+                                      FontFamily="Lucida Fax"
+                                      FontSize="12">
+                                <Grid Margin="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                               Text="Time (us) :"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="rt_tbTime"
+                                               Grid.Row="0" Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Text="-"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0"
+                                               Text="Bus :"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="rt_tbBus"
+                                               Grid.Row="1" Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Text="-"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0"
+                                               Text="Msg Type :"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="rt_tbMsgType"
+                                               Grid.Row="2" Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Text="-"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0"
+                                               Text="Word Count :"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="rt_tbWordCount"
+                                               Grid.Row="3" Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Text="-"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0"
+                                               Text="Status Word :"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="rt_tbStatusWord"
+                                               Grid.Row="4" Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Text="-"/>
+
+                                    <TextBlock Grid.Row="5" Grid.Column="0"
+                                               Text="Error :"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="rt_tbError"
+                                               Grid.Row="5" Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Foreground="Red"
+                                               Text="-"/>
+                                </Grid>
+                            </GroupBox>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <!--═══════════════════════════════════════-->
+            <!-- TAB 3 : RT SIMULATOR (NEW!)          -->
+            <!--═══════════════════════════════════════-->
+            <TabItem Header="RT Simulator  (Required for RT→BC Testing)">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+                    <Grid Background="Transparent" Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <!-- ROW 0 : Configuration                                   -->
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <GroupBox Grid.Row="0"
+                      Header="RT Simulator Configuration"
+                      BorderBrush="Navy"
+                      BorderThickness="2"
+                      Margin="3"
+                      FontFamily="Lucida Fax"
+                      FontSize="14"
+                      FontWeight="Bold"
+                      Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                            <StackPanel Margin="10">
+
+                                <!-- Warning Banner -->
+                                <Border Background="#FFFFF4DC"
+                            BorderBrush="#FFFFA500"
+                            BorderThickness="2"
+                            CornerRadius="4"
+                            Padding="10"
+                            Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="⚠ IMPORTANT: Start RT Simulator BEFORE using RT→BC tab!"
+                                       FontWeight="Bold"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="13"
+                                       Foreground="#FFCC6600"
+                                       Margin="0,0,0,4"/>
+                                        <TextBlock TextWrapping="Wrap"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="#FF333333">
+                                The DDC card will act as an RT device responding to BC requests.
+                                You can update response data LIVE without stopping the simulator.
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Config Grid -->
+                                <Grid Margin="0,4,0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Device ID -->
+                                    <StackPanel Grid.Column="0" Margin="4">
+                                        <Label Content="Device ID :"
+                                   FontFamily="Lucida Fax"
+                                   FontSize="12"
+                                   FontWeight="Bold"/>
+                                        <TextBox x:Name="rtsim_deviceIdTextBox"
+                                     Height="28"
+                                     FontSize="13"
+                                     Style="{StaticResource WhiteTextBox}"
+                                     Text="0"
+                                     HorizontalContentAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- RT Address -->
+                                    <StackPanel Grid.Column="1" Margin="4">
+                                        <Label Content="RT Address :"
+                                   FontFamily="Lucida Fax"
+                                   FontSize="12"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="rtsim_rtAddressComboBox"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      Height="28">
+                                            <ComboBoxItem Content="1" IsSelected="True"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="3"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="5"/>
+                                            <ComboBoxItem Content="6"/>
+                                            <ComboBoxItem Content="7"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="9"/>
+                                            <ComboBoxItem Content="10"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Sub Address -->
+                                    <StackPanel Grid.Column="2" Margin="4">
+                                        <Label Content="Sub Address :"
+                                   FontFamily="Lucida Fax"
+                                   FontSize="12"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="rtsim_subAddressComboBox"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      Height="28">
+                                            <ComboBoxItem Content="1" IsSelected="True"/>
+                                            <ComboBoxItem Content="2"/>
+                                            <ComboBoxItem Content="3"/>
+                                            <ComboBoxItem Content="4"/>
+                                            <ComboBoxItem Content="5"/>
+                                            <ComboBoxItem Content="6"/>
+                                            <ComboBoxItem Content="7"/>
+                                            <ComboBoxItem Content="8"/>
+                                            <ComboBoxItem Content="9"/>
+                                            <ComboBoxItem Content="10"/>
+                                            <ComboBoxItem Content="11"/>
+                                            <ComboBoxItem Content="12"/>
+                                            <ComboBoxItem Content="13"/>
+                                            <ComboBoxItem Content="14"/>
+                                            <ComboBoxItem Content="15"/>
+                                            <ComboBoxItem Content="16"/>
+                                            <ComboBoxItem Content="17"/>
+                                            <ComboBoxItem Content="18"/>
+                                            <ComboBoxItem Content="19"/>
+                                            <ComboBoxItem Content="20"/>
+                                            <ComboBoxItem Content="21"/>
+                                            <ComboBoxItem Content="22"/>
+                                            <ComboBoxItem Content="23"/>
+                                            <ComboBoxItem Content="24"/>
+                                            <ComboBoxItem Content="25"/>
+                                            <ComboBoxItem Content="26"/>
+                                            <ComboBoxItem Content="27"/>
+                                            <ComboBoxItem Content="28"/>
+                                            <ComboBoxItem Content="29"/>
+                                            <ComboBoxItem Content="30"/>
+                                            <ComboBoxItem Content="31"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Bus -->
+                                    <StackPanel Grid.Column="3" Margin="4">
+                                        <Label Content="1553 Bus :"
+                                   FontFamily="Lucida Fax"
+                                   FontSize="12"
+                                   FontWeight="Bold"/>
+                                        <ComboBox x:Name="rtsim_busSelectionComboBox"
+                                      Style="{StaticResource RoundedComboBox}"
+                                      Height="28">
+                                            <ComboBoxItem Content="A" IsSelected="True"/>
+                                            <ComboBoxItem Content="B"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Status Badge -->
+                                <Border x:Name="rtsim_statusBorder"
+                            Background="Gray"
+                            CornerRadius="6"
+                            Padding="12,6"
+                            Margin="4,8,4,4"
+                            HorizontalAlignment="Center">
+                                    <TextBlock x:Name="rtsim_statusText"
+                                   Text="⚫ RT SIMULATOR STOPPED"
+                                   FontFamily="Lucida Fax"
+                                   FontSize="14"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                                </Border>
+
+                                <!-- Start / Stop Buttons -->
+                                <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="4,6,4,4">
+                                    <Button x:Name="rtsim_startButton"
+                                Content="▶  Start RT Simulator"
+                                Width="180" Height="40"
+                                FontSize="13"
+                                Margin="6"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_Start_Click"/>
+                                    <Button x:Name="rtsim_stopButton"
+                                Content="⏹  Stop RT Simulator"
+                                Width="180" Height="40"
+                                FontSize="13"
+                                Margin="6"
+                                IsEnabled="False"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_Stop_Click"/>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <!-- ROW 1 : Quick Test Patterns                             -->
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <GroupBox Grid.Row="1"
+                      Header="Quick Test Patterns"
+                      BorderBrush="Navy"
+                      BorderThickness="2"
+                      Margin="3"
+                      FontFamily="Lucida Fax"
+                      FontSize="14"
+                      FontWeight="Bold"
+                      Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                            <StackPanel Margin="10">
+
+                                <TextBlock TextWrapping="Wrap"
+                               FontFamily="Lucida Fax"
+                               FontSize="11"
+                               Foreground="#FF444444"
+                               Margin="0,0,0,8">
+                        Click any pattern to load it into the data box below,
+                        then click <Bold>"🔄 Update RT Data"</Bold> to apply it to the running simulator.
+                                </TextBlock>
+
+                                <WrapPanel HorizontalAlignment="Left">
+                                    <Button Content="Default&#x0a;(1234..89AB)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_LoadDefault_Click"/>
+                                    <Button Content="Pattern 1&#x0a;(0001→0020)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_LoadTestData1_Click"/>
+                                    <Button Content="Pattern 2&#x0a;(AA55/55AA)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_LoadTestData2_Click"/>
+                                    <Button Content="Pattern 3&#x0a;(All 0000)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_LoadTestData3_Click"/>
+                                    <Button Content="Pattern 4&#x0a;(All FFFF)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_LoadTestData4_Click"/>
+                                    <Button Content="Pattern 5&#x0a;(DEAD/BEEF)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_LoadTestData5_Click"/>
+                                    <Button Content="Clear Data&#x0a;(Empty Box)"
+                                Width="118" Height="44"
+                                FontSize="11"
+                                Margin="3"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_ClearData_Click"/>
+                                </WrapPanel>
+
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <!-- ROW 2 : Manual Data Entry + Live Update                 -->
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <GroupBox Grid.Row="2"
+                      Header="RT Response Data  —  Manual Entry &amp; Live Update"
+                      BorderBrush="Navy"
+                      BorderThickness="2"
+                      Margin="3"
+                      FontFamily="Lucida Fax"
+                      FontSize="14"
+                      FontWeight="Bold"
+                      Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                            <StackPanel Margin="10">
+
+                                <!-- Instruction banner -->
+                                <Border Background="#FFF0F4FF"
+                            BorderBrush="#FFAABBDD"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="10,7"
+                            Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                       Text="📝"
+                                       FontSize="22"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="How to enter data manually:"
+                                           FontFamily="Lucida Fax"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,3"/>
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax"
+                                           FontSize="11"
+                                           Foreground="#FF333333">
+                                    Type HEX words (4 hex digits each) separated by spaces in the box below.
+                                    Example:  <Bold>1234 5678 ABCD EF01</Bold>
+                                    Up to 32 words maximum.  Then click  <Bold>"🔄 Update RT Data"</Bold>.
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Word count display -->
+                                <Grid Margin="0,0,0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                   Text="Enter HEX data below (space-separated, max 32 words):"
+                                   FontFamily="Lucida Fax"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                                        <TextBlock Text="Words: "
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="rtsim_wordCountLabel"
+                                       Text="32"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="Navy"
+                                       VerticalAlignment="Center"/>
+                                        <TextBlock Text=" / 32"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- ── MAIN DATA ENTRY TEXTBOX ── -->
+                                <TextBox x:Name="rtsim_responseDataTextBox"
+                             FontSize="14"
+                             FontFamily="Courier New"
+                             Height="110"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             AcceptsTab="False"
+                             HorizontalAlignment="Stretch"
+                             VerticalScrollBarVisibility="Auto"
+                             Style="{StaticResource WhiteTextBox}"
+                             ToolTip="Type 4-digit HEX words separated by spaces. Max 32 words."
+                             TextChanged="RTSim_DataTextBox_TextChanged"
+                             Text="1234 5678 ABCD EF01 2345 6789 BCDE F012 3456 789A CDEF 0123 4567 89AB CDEF 0123 4567 89AB CDEF 0123 4567 89AB CDEF 0123 4567 89AB CDEF 0123 4567 89AB"/>
+
+                                <!-- Validation status row -->
+                                <Border x:Name="rtsim_validationBorder"
+                            Background="#FFE8F5E9"
+                            BorderBrush="#FF4CAF50"
+                            BorderThickness="1"
+                            CornerRadius="3"
+                            Padding="6,3"
+                            Margin="0,4,0,0">
+                                    <TextBlock x:Name="rtsim_validationText"
+                                   Text="✔ Data looks valid — ready to update."
+                                   FontFamily="Lucida Fax"
+                                   FontSize="11"
+                                   Foreground="#FF2E7D32"/>
+                                </Border>
+
+                                <!-- Update Button Row -->
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Hint text -->
+                                    <Border Grid.Column="0"
+                                Background="#FFFFF8E1"
+                                BorderBrush="#FFFFCC02"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="8,6"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center">
+                                        <TextBlock TextWrapping="Wrap"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="11"
+                                       Foreground="#FF5D4037">
+                                <Bold>Workflow:</Bold>&#x0a;
+                                1. Type / paste / select pattern above&#x0a;
+                                2. Click <Bold>"🔄 Update RT Data"</Bold>&#x0a;
+                                3. Go to RT→BC tab and Receive — new data will appear
+                                        </TextBlock>
+                                    </Border>
+
+                                    <!-- UPDATE BUTTON -->
+                                    <Button x:Name="rtsim_updateDataButton"
+                                Grid.Column="1"
+                                Content="🔄 Update RT Data&#x0a;      (Live)"
+                                Width="170" Height="55"
+                                FontSize="14"
+                                FontWeight="Bold"
+                                IsEnabled="False"
+                                Margin="0"
+                                Style="{StaticResource RoundedButton}"
+                                Click="RTSim_UpdateData_Click"/>
+                                </Grid>
+
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <!-- ROW 3 : How-To Instructions                             -->
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <GroupBox Grid.Row="3"
+                      Header="How to Use RT Simulator"
+                      BorderBrush="Navy"
+                      BorderThickness="2"
+                      Margin="3"
+                      FontFamily="Lucida Fax"
+                      FontSize="14"
+                      FontWeight="Bold"
+                      Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+                            <StackPanel Margin="10">
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Left column -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock Text="▶  Setup &amp; Start"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="Navy"
+                                       Margin="0,0,0,6"/>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>1.</Bold>  Set Device ID (usually 0)
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>2.</Bold>  Choose RT Address and Sub Address
+                                    (must match the RT→BC tab settings)
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>3.</Bold>  Select Bus A or B
+                                    (must match BC tab bus selection)
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>4.</Bold>  Type HEX data manually OR
+                                    click a Quick Test Pattern button
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>5.</Bold>  Click
+                                    <Bold>"▶ Start RT Simulator"</Bold>
+                                            </TextBlock>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- Right column -->
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock Text="▶  Test &amp; Update Live"
+                                       FontFamily="Lucida Fax"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="Navy"
+                                       Margin="0,0,0,6"/>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>6.</Bold>  Go to <Bold>"RT → BC"</Bold> tab
+                                    → click <Bold>"Receive Data From RT"</Bold>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>7.</Bold>  Change data: type new HEX values
+                                    OR pick a pattern, then click
+                                    <Bold>"🔄 Update RT Data"</Bold>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>8.</Bold>  Receive again — NEW data appears.
+                                    Repeat steps 7-8 for each test.
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFF5F5FF" BorderBrush="#FFAAAACC"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="8" Margin="0,0,0,4">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax" FontSize="11">
+                                    <Bold>9.</Bold>  Click
+                                    <Bold>"⏹ Stop RT Simulator"</Bold>
+                                    when all testing is done
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Background="#FFE8F5E9"
+                                    BorderBrush="#FF4CAF50"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="8"
+                                    Margin="0,4,0,0">
+                                            <TextBlock TextWrapping="Wrap"
+                                           FontFamily="Lucida Fax"
+                                           FontSize="11"
+                                           Foreground="#FF2E7D32">
+                                    <Bold>✔ Note:</Bold>  DDC card acts as BOTH BC and RT
+                                    simultaneously (RTMT mode).
+                                    No external RT hardware needed.
+                                            </TextBlock>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                            </StackPanel>
+                        </GroupBox>
+
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!--═══════════════════════════════════════════════════-->
+        <!-- ROW 3 : Command Log Panel                        -->
+        <!--═══════════════════════════════════════════════════-->
+        <GroupBox Grid.Row="3"
+                  Header="Command Log"
+                  BorderBrush="Navy"
+                  BorderThickness="2"
+                  Margin="4,2"
+                  FontFamily="Lucida Fax"
+                  FontSize="13"
+                  FontWeight="Bold"
+                  Style="{StaticResource RoundedGroupBoxWithWhiteHeader}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="90"/>
+                </Grid.ColumnDefinitions>
+
+                <ListBox x:Name="logListBox"
+                         Grid.Column="0"
+                         Background="#FFF5F5DC"
+                         Foreground="Black"
+                         FontFamily="Courier New"
+                         FontSize="12"
+                         Style="{StaticResource RoundedListBox}"
+                         Margin="4"/>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Vertical"
+                            Margin="4">
+                    <Button Content="Save Log"
+                            Height="30"
+                            Margin="0,0,0,4"
+                            Style="{StaticResource RoundedButton}"
+                            Click="SaveLog_Click"/>
+                    <Button Content="Clear Log"
+                            Height="30"
+                            Margin="0,0,0,0"
+                            Style="{StaticResource RoundedButton}"
+                            Click="ClearLog_Click"/>
+                </StackPanel>
+
+            </Grid>
+        </GroupBox>
+
+        <!--═══════════════════════════════════════════════════-->
+        <!-- ROW 4 : Bottom Status Bar                        -->
+        <!--═══════════════════════════════════════════════════-->
+        <Border Grid.Row="4" Background="#FF002D59">
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="8,0">
+                <TextBlock x:Name="statusBarText"
+                           Text="Ready"
+                           Foreground="White"
+                           FontFamily="Lucida Fax"
+                           FontSize="12"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>
